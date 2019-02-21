@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2047
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI.Core.Storage.AzureBlobStorage", "AI.Core.Storage.AzureBlobStorage\AI.Core.Storage.AzureBlobStorage.csproj", "{49353CB1-6857-4E9E-B65C-A9A894025902}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloud.Core.Storage.AzureBlobStorage", "Cloud.Core.Storage.AzureBlobStorage\Cloud.Core.Storage.AzureBlobStorage.csproj", "{49353CB1-6857-4E9E-B65C-A9A894025902}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AI.Core.Storage.AzureBlobStorage.Tests", "Tests\AI.Core.Storage.AzureBlobStorage.Tests.csproj", "{F0CD7CC0-BDAB-4AA8-8C5B-0D5829C6820F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cloud.Core.Storage.AzureBlobStorage.Tests", "Tests\Cloud.Core.Storage.AzureBlobStorage.Tests.csproj", "{F0CD7CC0-BDAB-4AA8-8C5B-0D5829C6820F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
