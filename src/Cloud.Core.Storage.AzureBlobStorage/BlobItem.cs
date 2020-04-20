@@ -1,9 +1,11 @@
 ﻿namespace Cloud.Core.Storage.AzureBlobStorage
 {
-    using System;
-    using System.Globalization;
     using JetBrains.Annotations;
-    using Microsoft.WindowsAzure.Storage.Blob;
+    using System;
+    using System.Collections.Generic;
+    using System.Globalization;
+    using System.Web;
+    using Microsoft.Azure.Storage.Blob;
 
     /// <summary>
     /// Azure specific implementation of a BLOB item.
@@ -20,13 +22,42 @@
         public BlobItem([NotNull] IListBlobItem item)
         {
             Tag = item;
-            
+
             RootFolder = item.Container.Name;
             Path = item.Uri.AbsolutePath;
             UniqueLeaseName = Guid.NewGuid().ToString();
 
-            var index = Path.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
-            FileName = Path.Substring(index, Path.Length - index);
+            var index = Path.LastIndexOf("/", StringComparison.InvariantCulture);
+            FileName = Path.Substring(index + 1, Path.Length - index - 1);
+            FileNameWithoutExtension = FileName;
+
+            index = Path.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
+
+            if (index > 0)
+            {
+                FileExtension = Path.Substring(index, Path.Length - index).ToLower(CultureInfo.InvariantCulture);
+                FileNameWithoutExtension = FileName.Replace(FileExtension, string.Empty);
+
+                var extIndex = FileNameWithoutExtension.LastIndexOf(".", StringComparison.InvariantCulture);
+                FileNameWithoutExtension = extIndex > 0 ? FileNameWithoutExtension.Substring(0, extIndex) : FileNameWithoutExtension;
+            }
+            Path = $"{RootFolder}/{FileName}";
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobItem"/> class.
+        /// </summary>
+        /// <param name="item">The <see cref="CloudBlockBlob"/> to build properties from.</param>
+        public BlobItem([NotNull] CloudBlockBlob item)
+        {
+            Tag = item;
+
+            RootFolder = item.Container.Name;
+            Path = item.Uri.AbsolutePath;
+            UniqueLeaseName = Guid.NewGuid().ToString();
+
+            var index = Path.LastIndexOf("/", StringComparison.InvariantCulture);
+            FileName = Path.Substring(index + 1, Path.Length - index - 1);
             FileNameWithoutExtension = FileName;
 
             index = Path.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
@@ -40,34 +71,41 @@
                 FileNameWithoutExtension = extIndex > 0 ? FileNameWithoutExtension.Substring(0, extIndex) : FileNameWithoutExtension;
             }
 
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BlobItem"/> class.
-        /// </summary>
-        /// <param name="item">The <see cref="CloudBlockBlob"/> to build properties from.</param>
-        public BlobItem([NotNull] CloudBlockBlob item)
-        {
-            Tag = item;
-
-            FileName = item.Name;
-            FileNameWithoutExtension = item.Name;
-            RootFolder = item.Container.Name;
-            Path = item.Name;
-            UniqueLeaseName = Guid.NewGuid().ToString();
+            Metadata = (Dictionary<string, string>) item.Metadata;
 
             if (item.Properties != null && item.Properties.Length != -1)
             {
                 FileSize = item.Properties.Length;
-                ContentHash = item.Properties.ContentMD5;
+
+                // Set content hash if it exists.
+                if (item.Properties.ContentMD5 != null)
+                    ContentHash = ConvertContentHash(item.Properties.ContentMD5);
+
+                // Set LastWriteTime if it exists.
+                if (item.Properties.LastModified != null)
+                    LastWriteTime = item.Properties.LastModified.Value.UtcDateTime;
             }
 
-            var index = Path.LastIndexOf(".", StringComparison.InvariantCulture) + 1;
-
-            if (index > 0) { 
-                FileExtension = Path.Substring(index, Path.Length - index).ToLower(CultureInfo.InvariantCulture);
-                FileNameWithoutExtension = FileName.Replace(FileExtension, string.Empty);
+            // We need to get the LastWriteTime for the blob, a custom metadata property.
+            // We are including a fallback to the built in last modified date of the blob should the custom property not exist.
+            // Instantiating the property to DateTime.MinValue just in case something really weird has happened and the fallback property isn't set.
+            if (item.Metadata.ContainsKey("LastWriteTimeUtc"))
+            {
+                var encodedLastWrite = item.Metadata["LastWriteTimeUtc"];
+                LastWriteTime = DateTime.Parse(HttpUtility.UrlDecode(encodedLastWrite));
             }
+            Path = $"{RootFolder}/{FileName}";
+        }
+
+        /// <summary>
+        /// Converts Azure's content Md5 property to the safe content hash property 
+        /// </summary>
+        /// <param name="contentMd5"></param>
+        /// <returns></returns>
+        internal string ConvertContentHash(string contentMd5)
+        {
+            var decodedContentHash = Convert.FromBase64String(contentMd5);
+            return BitConverter.ToString(decodedContentHash).Replace("-", string.Empty).ToUpper();
         }
 
         /// <summary>
@@ -128,5 +166,19 @@
 
         /// <summary>MD5 has representing blob content</summary>
         public string ContentHash { get; internal set; }
+
+        /// <summary>Last write time of the file.</summary>
+        public DateTime LastWriteTime { get; } = DateTime.MinValue;
+
+        /// <summary>
+        /// Gets the properties of the blob item.
+        /// </summary>
+        /// <value>The properties to set for the blob item.</value>
+        public Dictionary<string, string> Properties { get; set; }
+        
+        /// <summary>
+        /// Gets the custom metadata of the blob item
+        /// </summary>
+        public Dictionary<string, string> Metadata { get; set; }
     }
 }

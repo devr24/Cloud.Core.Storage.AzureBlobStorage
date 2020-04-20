@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Auth;
+using Microsoft.Azure.Storage.Blob;
 
-namespace Cloud.Core.Storage.AzureBlobStorage.Tests
+namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
 {
 
     public class MockBlobStorage : CloudBlobClient
