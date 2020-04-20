@@ -4,8 +4,6 @@
 [![Cloud.Core.Configuration package in Cloud.Core feed in Azure Artifacts](https://feeds.dev.azure.com/cloudcoreproject/dfc5e3d0-a562-46fe-8070-7901ac8e64a0/_apis/public/Packaging/Feeds/8949198b-5c74-42af-9d30-e8c462acada6/Packages/e71ddf20-f66a-45da-b672-c32798cf1e51/Badge)](https://dev.azure.com/cloudcoreproject/CloudCore/_packaging?_a=package&feed=8949198b-5c74-42af-9d30-e8c462acada6&package=e71ddf20-f66a-45da-b672-c32798cf1e51&preferRelease=true)
 
 
---------------
-
 <div id="description">
 
 An Azure specific implementation of blob storage and blob storage item.
@@ -15,8 +13,6 @@ An Azure specific implementation of blob storage and blob storage item.
 ## Design
 
 One of the patterns used within this package (specifically when listing blobs) is the observable pattern.  This is possible because results (calls to the ListBlobs API) are yielded as an observable.  You can read more on the observable pattern here: https://docs.microsoft.com/en-us/dotnet/standard/events/observer-design-pattern
-
-You can read more on Design Patterns in our [Knowledge Share](https://ailimited.sharepoint.com/:f:/s/Engineering/EiNpbXiADjJCqPV1AA3Gu2ABh1Z1A3pxEmJU9joE59Vz-w?e=EFgFJ8)
 
 
 ## Usage
