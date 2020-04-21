@@ -8,9 +8,10 @@
     using System.Reactive.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using System.Diagnostics.CodeAnalysis;
+    using Comparer;
     using Config;
     using Extensions;
-    using JetBrains.Annotations;
     using Microsoft.Azure.Management.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent;
     using Microsoft.Azure.Management.ResourceManager.Fluent.Authentication;
@@ -42,7 +43,7 @@
         /// <param name="config">The Service Principle configuration settings for connecting to storage.</param>
         /// <param name="logger">The logger to log information to.</param>
         /// <inheritdoc />
-        public BlobStorage([NotNull]ServicePrincipleConfig config, [CanBeNull] ILogger logger = null)
+        public BlobStorage([NotNull]ServicePrincipleConfig config, [MaybeNull] ILogger logger = null)
             : base(config, logger)
         {
         }
@@ -52,7 +53,7 @@
         /// </summary>
         /// <param name="config">The Connection String information for connecting to Storage.</param>
         /// <param name="logger">The logger.</param>
-        public BlobStorage([NotNull]ConnectionConfig config, [CanBeNull] ILogger logger = null)
+        public BlobStorage([NotNull]ConnectionConfig config, [MaybeNull] ILogger logger = null)
             : base(config, logger) { }
 
         /// <summary>
@@ -60,7 +61,7 @@
         /// </summary>
         /// <param name="config">The Managed Service Identity (MSI) configuration for connecting to storage.</param>
         /// <param name="logger">The logger.</param>
-        public BlobStorage([NotNull]MsiConfig config, [CanBeNull]ILogger logger = null)
+        public BlobStorage([NotNull]MsiConfig config, [MaybeNull]ILogger logger = null)
             : base(config, logger) { }
 
         /// <summary>

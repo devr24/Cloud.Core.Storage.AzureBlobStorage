@@ -1,6 +1,7 @@
-﻿namespace Cloud.Core.Storage.AzureBlobStorage
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace Cloud.Core.Storage.AzureBlobStorage
 {
-    using JetBrains.Annotations;
     using System;
     using System.Collections.Generic;
     using System.Globalization;

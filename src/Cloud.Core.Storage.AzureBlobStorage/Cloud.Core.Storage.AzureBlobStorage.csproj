@@ -19,7 +19,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Cloud.Core" Version="3.1.3438.6" />
+    <PackageReference Include="Cloud.Core" Version="3.1.3514.150" />
     <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.18.0" />
     <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.2.1" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.3" />
