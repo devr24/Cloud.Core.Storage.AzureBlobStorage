@@ -9,13 +9,13 @@
     <PackageTags>Cloud.Core .net-Core Core Cloud.Core.Storage.AzureBlobStorage BlobStorage Azure</PackageTags>
     <PackageReleaseNotes />
     <Description>An Azure specific implementation of Blob object storage.</Description>
-    <Copyright>Robert McCabe</Copyright>
+    <Copyright>Aylesbury Solutions Ltd</Copyright>
     <Version>3.1</Version>
-	<PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
+    <PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
     <Authors>Robert McCabe</Authors>
     <ProjectGuid>{e516636b-27e9-4353-982d-8d591aac5f43}</ProjectGuid>
-	<RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Storage.AzureBlobStorage</RepositoryUrl>
-	<RepositoryType>Private</RepositoryType>
+    <RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Storage.AzureBlobStorage</RepositoryUrl>
+    <RepositoryType>Private</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
