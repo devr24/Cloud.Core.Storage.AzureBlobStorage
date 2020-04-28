@@ -6,7 +6,7 @@ using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Auth;
 using Microsoft.Azure.Storage.Blob;
 
-namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
+namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Fakes
 {
 
     /// <summary>

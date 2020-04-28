@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
+namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Fakes
 {
     /// <summary>
     /// Class FakeServiceCollection.
