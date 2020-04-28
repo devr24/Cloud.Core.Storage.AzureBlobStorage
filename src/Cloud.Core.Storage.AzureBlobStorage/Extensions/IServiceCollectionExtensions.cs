@@ -7,9 +7,9 @@
     using Cloud.Core.Storage.AzureBlobStorage.Config;
 
     /// <summary>
-    /// Class ServiceCollectionExtensions.
+    /// Class Service Collection extensions.
     /// </summary>
-    public static class IServiceCollectionExtensions
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Adds an instance of Azure Blob storage as a singleton, using managed user config to setup.  Requires the instance 
