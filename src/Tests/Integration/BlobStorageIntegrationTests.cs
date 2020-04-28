@@ -179,11 +179,9 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                     fileSize = stream.Length;
                     Assert.Equal(size, fileSize);
 
-                    using (var reader = new StreamReader(stream))
-                    {
-                        text = reader.ReadToEnd();
-                        Assert.Equal("This is a test this is a test", text);
-                    }
+                    using var reader = new StreamReader(stream);
+                    text = reader.ReadToEnd();
+                    Assert.Equal("This is a test this is a test", text);
                 }
 
                 var targetDir = Environment.CurrentDirectory + "\\test.txt";

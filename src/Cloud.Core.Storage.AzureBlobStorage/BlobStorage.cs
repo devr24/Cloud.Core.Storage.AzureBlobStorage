@@ -44,9 +44,7 @@
         /// <param name="logger">The logger to log information to.</param>
         /// <inheritdoc />
         public BlobStorage([NotNull]ServicePrincipleConfig config, [MaybeNull] ILogger logger = null)
-            : base(config, logger)
-        {
-        }
+            : base(config, logger) { }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BlobStorage" /> class with a Connection String.
@@ -269,7 +267,9 @@
                     UploadBlob(blobPath, stream, metadata).GetAwaiter().GetResult();
                 }
                 else
+                {
                     throw;
+                }
             }
         }
 
@@ -293,13 +293,15 @@
         /// <returns>Async Task</returns>
         public async Task UpdateBlobMetadata(IBlobItem blob)
         {
-            var item = blob as BlobItem;
-            if (item == null || item.Tag == null)
+            if (!(blob is BlobItem item) || item.Tag == null)
+            {
                 return;
+            }
 
-            var cloudBlob = item.Tag as CloudBlockBlob;
-            if (cloudBlob == null)
+            if (!(item.Tag is CloudBlockBlob cloudBlob))
+            {
                 return;
+            }
 
             await cloudBlob.SetMetadataAsync();
         }
@@ -638,7 +640,7 @@
         {
             if (folderPath.Length > 0)
             {
-                return folderPath[0] == '/' ? folderPath.Substring(1, folderPath.Length - 1) : folderPath;
+                return folderPath[0] == '/' ? folderPath[1..] : folderPath;
             }
 
             return string.Empty;
@@ -673,6 +675,10 @@
         /// <summary>Name of the object instance.</summary>
         public string Name { get; set; }
 
+        /// <summary>
+        /// Gets or sets the base path for all blob lookups.
+        /// </summary>
+        /// <value>The base path.</value>
         public string BasePath
         {
             get { return _basePath; }
@@ -712,6 +718,11 @@
             _cloudBlobClient.DefaultRequestOptions.RetryPolicy = new LinearRetry(TimeSpan.FromMilliseconds(500), 3);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobStorageBase"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="logger">The logger.</param>
         protected BlobStorageBase(ConnectionConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
@@ -724,6 +735,11 @@
             ConnectionString = config.ConnectionString;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobStorageBase"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="logger">The logger.</param>
         protected BlobStorageBase(MsiConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
@@ -734,10 +750,16 @@
             LockTickInSeconds = (long)Math.Floor(config.LockInSeconds * 0.8); // renew at 80% lock-time to cope with load
             MsiConfig = config;
             Name = config.InstanceName;
+
             _instanceName = config.InstanceName;
             _subscriptionId = config.SubscriptionId;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="BlobStorageBase"/> class.
+        /// </summary>
+        /// <param name="config">The configuration.</param>
+        /// <param name="logger">The logger.</param>
         protected BlobStorageBase(ServicePrincipleConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
@@ -748,6 +770,7 @@
             LockTickInSeconds = (long)Math.Floor(config.LockInSeconds * 0.8); // renew at 80% lock-time to cope with load
             ServicePrincipleConfig = config;
             Name = config.InstanceName;
+
             _instanceName = config.InstanceName;
             _subscriptionId = config.SubscriptionId;
         }
@@ -778,11 +801,12 @@
                 return _container;
 
             var containerName = GetContainerFromPath(fullPath);
-
             var container = CloudBlobClient.GetContainerReference(containerName);
 
             if (createIfDoesNotExist)
+            {
                 await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+            }
 
             return container;
         }
@@ -816,7 +840,9 @@
                     token = provider.GetAccessTokenAsync(azureManagementAuthority, MsiConfig.TenantId).GetAwaiter().GetResult();
 
                     if (string.IsNullOrEmpty(token))
+                    {
                         throw new InvalidOperationException("Could not authenticate using Managed Service Identity, ensure the application is running in a secure context");
+                    }
 
                     _expiryTime = DateTime.Now.AddDays(1);
                 }
@@ -830,8 +856,9 @@
                     var tokenResult = context.AcquireTokenAsync(azureManagementAuthority, credential).GetAwaiter().GetResult();
 
                     if (tokenResult == null || tokenResult.AccessToken == null)
+                    {
                         throw new InvalidOperationException($"Could not authenticate to {windowsLoginAuthority}{ServicePrincipleConfig.TenantId} using supplied AppId: {ServicePrincipleConfig.AppId}");
-
+                    }
                     _expiryTime = tokenResult.ExpiresOn;
                     token = tokenResult.AccessToken;
                 }
@@ -901,7 +928,7 @@
 
             if (indexOfFirstSlash == 0)
             {
-                fullPath = fullPath.Substring(1, fullPath.Length - 1);
+                fullPath = fullPath[1..];
                 indexOfFirstSlash = fullPath.IndexOf("/", StringComparison.InvariantCulture);
             }
 
@@ -926,7 +953,9 @@
 
             // Remove redundant forwardslash, if exists.
             if (fullPath.Length > 0 && fullPath[0] == '/')
+            {
                 fullPath = fullPath.Remove(0, 1);
+            }
 
             return fullPath;
         }
@@ -942,13 +971,13 @@
 
             if (firstSlashIndex == 0)
             {
-                path = path.Substring(1, path.Length - 1);
+                path = path[1..];
             }
 
             if (firstSlashIndex > -1)
             {
                 var indexOfFirstSlash = path.IndexOf("/", StringComparison.InvariantCulture) + 1;
-                return path.Substring(indexOfFirstSlash, path.Length - indexOfFirstSlash);
+                return path[indexOfFirstSlash..];
             }
             return path;
         }

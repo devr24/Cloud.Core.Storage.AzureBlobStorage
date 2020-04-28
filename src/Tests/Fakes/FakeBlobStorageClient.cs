@@ -78,11 +78,9 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
         /// <returns>Task.</returns>
         public virtual Task DownloadToStreamAsync(Stream target)
         {
-            using (var writer = new StreamWriter(target))
-            {
-                writer.WriteAsync("This is a test");
-                return writer.FlushAsync();
-            }
+            using var writer = new StreamWriter(target);
+            writer.WriteAsync("This is a test");
+            return writer.FlushAsync();
         }
 
         /// <summary>
@@ -95,14 +93,12 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
         {
             using (var fileStream = new MemoryStream())
             {
-                using (var writer = new StreamWriter(fileStream))
-                {
-                    writer.Write("This is a test");
-                    writer.Flush();
+                using var writer = new StreamWriter(fileStream);
+                writer.Write("This is a test");
+                writer.Flush();
 
-                    File.WriteAllBytes(path, fileStream.GetBuffer());
-                    return Task.FromResult(true);
-                }
+                File.WriteAllBytes(path, fileStream.GetBuffer());
+                return Task.FromResult(true);
             }
         }
 

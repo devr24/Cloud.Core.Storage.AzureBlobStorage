@@ -14,7 +14,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
         /// <summary>
         /// The services
         /// </summary>
-        List<ServiceDescriptor> _services = new List<ServiceDescriptor>();
+        private readonly List<ServiceDescriptor> _services = new List<ServiceDescriptor>();
 
         /// <summary>
         /// Gets the enumerator.
