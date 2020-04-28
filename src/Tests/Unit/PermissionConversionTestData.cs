@@ -4,8 +4,16 @@
     using Microsoft.Azure.Storage.Blob;
     using Xunit;
 
+    /// <summary>
+    /// Class PermissionConversionTestData.
+    /// Implements the <see cref="Xunit.TheoryData{Microsoft.Azure.Storage.Blob.SharedAccessBlobPermissions, System.Collections.Generic.List{Cloud.Core.AccessPermission}}" />
+    /// </summary>
+    /// <seealso cref="Xunit.TheoryData{Microsoft.Azure.Storage.Blob.SharedAccessBlobPermissions, System.Collections.Generic.List{Cloud.Core.AccessPermission}}" />
     public class PermissionConversionTestData : TheoryData<SharedAccessBlobPermissions, List<AccessPermission>>
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PermissionConversionTestData"/> class.
+        /// </summary>
         public PermissionConversionTestData()
         {
             Add(SharedAccessBlobPermissions.Add, new List<AccessPermission> { AccessPermission.Add });

@@ -2,6 +2,8 @@
 {
     using System;
     using System.Linq;
+    using System.ComponentModel.DataAnnotations;
+    using Validation;
 
     /// <summary>
     /// Msi Configuration for Azure Blob Storage.
@@ -14,14 +16,16 @@
         /// <value>
         /// The name of the blob storage instance.
         /// </value>
+        [Required]
         public string InstanceName { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the tenant identifier.
         /// </summary>
         /// <value>
         /// The tenant identifier.
         /// </value>
+        [Required]
         public string TenantId { get; set; }
 
         /// <summary>
@@ -30,6 +34,7 @@
         /// <value>
         /// The subscription identifier.
         /// </value>
+        [Required]
         public string SubscriptionId { get; set; }
 
         /// <summary>
@@ -41,19 +46,6 @@
         public override string ToString()
         {
             return $"TenantId: {TenantId}, SubscriptionId:{SubscriptionId} Blob storage InstanceName: {InstanceName}, LockInSeconds: {LockInSeconds}, CreateIfNotExists: {CreateFolderIfNotExists}";
-        }
-
-        /// <summary>Ensure mandatory properties are set.</summary>
-        public void Validate()
-        {
-            if (InstanceName.IsNullOrEmpty())
-                throw new ArgumentException("StorageInstanceName must be set");
-
-            if (TenantId.IsNullOrEmpty())
-                throw new ArgumentException("TenantId must be set");
-
-            if (SubscriptionId.IsNullOrEmpty())
-                throw new ArgumentException("SubscriptionId must be set");
         }
     }
 
@@ -95,9 +87,9 @@
                     return null;
                 }
 
-                // Account name is used as the indentifier.
-                return parts.Where(p => p.StartsWith(replaceStr))
-                    .FirstOrDefault()?.Replace(replaceStr, string.Empty);
+                // Account name is used as the identifier.
+                return parts
+                    .FirstOrDefault(p => p.StartsWith(replaceStr))?.Replace(replaceStr, string.Empty);
             }
         }
 
@@ -107,6 +99,7 @@
         /// <value>
         /// Storage connection string.
         /// </value>
+        [Required]
         public string ConnectionString { get; set; }
 
         /// <summary>
@@ -118,13 +111,6 @@
         public override string ToString()
         {
             return $"ConnectionString: {(ConnectionString.IsNullOrEmpty() ? "Not Set" : "Set")}, Blob storage InstanceName: {InstanceName}, LockInSeconds: {LockInSeconds}, CreateIfNotExists: {CreateFolderIfNotExists}";
-        }
-
-        /// <summary>Ensure mandatory properties are set.</summary>
-        public void Validate()
-        {
-            if (ConnectionString.IsNullOrEmpty())
-                throw new ArgumentException("ConnectionString must be set");
         }
     }
 
@@ -139,6 +125,7 @@
         /// <value>
         /// The application identifier.
         /// </value>
+        [Required]
         public string AppId { get; set; }
 
         /// <summary>
@@ -147,6 +134,7 @@
         /// <value>
         /// The application secret string.
         /// </value>
+        [Required]
         public string AppSecret { get; set; }
 
         /// <summary>
@@ -155,6 +143,7 @@
         /// <value>
         /// The tenant identifier.
         /// </value>
+        [Required]
         public string TenantId { get; set; }
 
         /// <summary>
@@ -163,6 +152,7 @@
         /// <value>
         /// The subscription identifier.
         /// </value>
+        [Required]
         public string SubscriptionId { get; set; }
 
         /// <summary>
@@ -171,6 +161,7 @@
         /// <value>
         /// The name of the blob storage instance.
         /// </value>
+        [Required]
         public string InstanceName { get; set; } 
 
         /// <summary>
@@ -183,31 +174,12 @@
         {
             return $"AppId: {AppId}, AppSecret: {(AppSecret.IsNullOrEmpty() ? "Not Set" : "Set")}, TenantId: {TenantId}, SubscriptionId: {SubscriptionId}, Blob storage InstanceName: {InstanceName}, LockInSeconds: {LockInSeconds}, CreateIfNotExists: {CreateFolderIfNotExists}";
         }
-
-        /// <summary>Ensure mandatory properties are set.</summary>
-        public void Validate()
-        {
-            if (InstanceName.IsNullOrEmpty())
-                throw new ArgumentException("Blob storage InstanceName must be set");
-
-            if (AppId.IsNullOrEmpty())
-                throw new ArgumentException("AppId must be set");
-
-            if (AppSecret.IsNullOrEmpty())
-                throw new ArgumentException("AppSecret must be set");
-
-            if (TenantId.IsNullOrEmpty())
-                throw new ArgumentException("TenantId must be set");
-
-            if (SubscriptionId.IsNullOrEmpty())
-                throw new ArgumentException("SubscriptionId must be set");
-        }
     }
 
     /// <summary>
     /// Common config application to all authentication types.
     /// </summary>
-    public abstract class ConfigBase
+    public abstract class ConfigBase: AttributeValidator
     {
         /// <summary>
         /// Gets the length of time (in seconds) a lock should be applied by default.
@@ -223,5 +195,4 @@
         /// </summary>
         public bool CreateFolderIfNotExists { get; set; }
     }
-
 }

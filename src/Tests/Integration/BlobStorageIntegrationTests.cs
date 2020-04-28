@@ -36,7 +36,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
             var config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
             _config = new ServicePrincipleConfig
             {
-                InstanceName = config.GetValue<string>("StorageInstanceName"),
+                InstanceName = config.GetValue<string>("InstanceName"),
                 TenantId = config.GetValue<string>("TenantId"),
                 SubscriptionId = config.GetValue<string>("SubscriptionId"),
                 AppId = config.GetValue<string>("AppId"),
@@ -49,13 +49,15 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 .BuildServiceProvider().GetService<ILogger<BlobStorageIntegrationTests>>();
 
             _client = new BlobStorage(_config, _logger);
-            _client.Name.Should().Be(config.GetValue<string>("StorageInstanceName"));
+            _client.Name.Should().Be(config.GetValue<string>("InstanceName"));
             RemoveTestFile(_fullPath);
         }
 
+        /// <summary>Verify the cached config returns from cache, rather than rebuilding the connection string each time.</summary>
         [Fact]
         public void Test_BlobStorage_CachedConnectionString()
         {
+            // Arrange
             var targetDir = Environment.CurrentDirectory + "\\test.txt";
             TearUpDown((size, name) =>
             {
@@ -66,9 +68,12 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 _client.ConnectionString.Should().NotBeNullOrEmpty();
 
             });
-
             var testInstance = new BlobStorage(_config);
+
+            // Act
             var internalClient = testInstance.CloudBlobClient; // initialise the client connection.
+
+            // Assert
             testInstance.ConnectionString.Should().NotBeNullOrEmpty();
         }
 
@@ -76,20 +81,29 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_MsiConfig()
         {
+            // Arrange
             var client = new BlobStorage(new MsiConfig { InstanceName = "test", SubscriptionId = "test", TenantId = "test" });
+
+            // Act/Assert
             Assert.Throws<InvalidOperationException>(() => client.BuildStorageConnection().GetAwaiter().GetResult());
         }
 
+        /// <summary>Verifies getting a blob that does not exist returns the correct result.</summary>
         [Fact]
         public void Test_BlobStorage_GetBlobExistsAndNotExists()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
+
                 // Get the blob with a lock.
                 var blobExists = _client.GetBlob(_fullPath).GetAwaiter().GetResult();
                 blobExists.Should().NotBeNull();
 
+                // Act
                 var blobDoesNotExist = _client.GetBlob($"{TestContainerName}/DOESNOTEXIST").GetAwaiter().GetResult();
+
+                // Assert
                 blobDoesNotExist.Should().BeNull();
             });
         }
@@ -98,14 +112,18 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_GetBlobLockUnlock()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
                 // Get the blob with a lock.
                 var blob = _client.GetBlobWithLock(_fullPath, _lease).GetAwaiter().GetResult();
                 Thread.Sleep(15);
                 _client.UnlockBlob(blob);
+
+                // Act
                 var content = _client.DownloadBlob(blob).GetAwaiter().GetResult();
 
+                // Assert
                 Assert.NotNull(content);
                 Assert.True(blob.FileName == TestFileName);
                 Assert.True(blob.FileNameWithoutExtension == "testfile");
@@ -118,9 +136,10 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_UploadFile()
         {
-            // Test a file can be created and removed without exception.
+            // Assert - Test a file can be created and removed without exception.
             AssertExtensions.DoesNotThrow(() =>
             {
+                // Arrange/Act
                 TearUpDown((size, name) => { });
             });
         }
@@ -129,11 +148,15 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_DownloadFileToDisk()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
                 var targetDir = Environment.CurrentDirectory + "\\test.txt";
+
+                // Act
                 _client.DownloadBlob(_fullPath, targetDir).GetAwaiter().GetResult();
 
+                // Assert
                 Assert.True(File.Exists(targetDir));
             });
         }
@@ -142,8 +165,10 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_DownloadFileStream()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
+                // Act
                 var blob = _client.GetBlob(_fullPath, true).GetAwaiter().GetResult();
 
                 string text;
@@ -164,6 +189,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 var targetDir = Environment.CurrentDirectory + "\\test.txt";
                 _client.DownloadBlob(_fullPath, targetDir).GetAwaiter().GetResult();
 
+                // Assert
                 Assert.True(File.Exists(targetDir));
             });
         }
@@ -172,13 +198,15 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_SetBasePath()
         {
+            // Arrange
             _client.BasePath = TestContainerName;
-
             TearUpDown((size, name) =>
             {
+                // Act/Assert
                 _client.Exists(TestFileName).GetAwaiter().GetResult().Should().BeTrue();
             });
 
+            // Act/Assert
             _client.Exists(TestFileName).GetAwaiter().GetResult().Should().BeFalse();
         }
 
@@ -186,11 +214,14 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_BlobExists()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
+                // Act/Assert
                 _client.Exists(_fullPath).GetAwaiter().GetResult().Should().BeTrue();
             });
 
+            // Act/Assert
             _client.Exists(_fullPath).GetAwaiter().GetResult().Should().BeFalse();
         }
 
@@ -198,12 +229,16 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_UploadxDownloadToDisk()
         {
+            // Arrange
             var localFilePath = $"{AppDomain.CurrentDomain.BaseDirectory}\\{TestFileName}";
 
+            // Act
             File.WriteAllText(localFilePath, Lorem.GetParagraph());
             _client.UploadBlob(_fullPath, localFilePath).GetAwaiter().GetResult();
             File.Delete(localFilePath);
             _client.DownloadBlob(_fullPath, localFilePath).GetAwaiter().GetResult();
+
+            // Assert
             Assert.True(File.Exists(localFilePath));
             File.Delete(localFilePath);
         }
@@ -212,9 +247,13 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_ListFiles()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
+                // Act
                 var files = _client.ListBlobs(TestContainerName, false);
+
+                // Assert
                 Assert.True(files.Select(f => f.FileName == TestFileName).Any());
             });
         }
@@ -223,9 +262,13 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_ListFolders()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
+                // Act
                 var folders = _client.ListFolders().GetAwaiter().GetResult();
+
+                // Assert
                 Assert.True(folders.Any());
             });
         }
@@ -234,14 +277,17 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_GetBlobWithAttributes()
         {
+            // Act
             TearUpDown((size, name) =>
             {
                 var localFilePath = $"{AppDomain.CurrentDomain.BaseDirectory}\\{TestFileName}";
 
+                // Act
                 var blob = (BlobItem)_client.GetBlob(_fullPath, true).GetAwaiter().GetResult();
-
                 var content = _client.DownloadBlob(blob).GetAwaiter().GetResult();
                 File.WriteAllBytes(localFilePath, ((MemoryStream)content).GetBuffer());
+
+                // Assert
                 Assert.Equal(size, blob.FileSize);
                 Assert.True(File.Exists(localFilePath));
                 Assert.NotNull(content);
@@ -257,21 +303,28 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         [Fact]
         public void Test_BlobStorage_ListFilesSubscribe()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
+                // Act
                 _client.ListBlobsObservable(TestContainerName, true, true).Take(1).Subscribe(blobItem =>
                 {
+                    // Assert
                     Assert.True(blobItem.FileName == TestFileName);
                 });
             });
         }
 
-        /// <summary>Verifies content hash of file.</summary>
+        /// <summary>Verifies content hash of file is as exepected.</summary>
         [Fact]
         public void Test_BlobStorage_GetBlobWithAttributesParsesContentHashCorrectlyAsync()
         {
+            // Arrange
             TearUpDown((size, name) =>
             {
+                var rg = new Regex(@"^[a-zA-Z0-9\s,]*$");
+
+                // Act
                 var azureBlob = _client.GetBlockBlobReference(_fullPath).GetAwaiter().GetResult();
                 azureBlob.FetchAttributesAsync().GetAwaiter().GetResult();
                 var azureContentMd5 = Convert.FromBase64String(azureBlob.Properties.ContentMD5);
@@ -279,24 +332,24 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
 
                 var aiCoreBlob = _client.GetBlob(_fullPath, true).GetAwaiter().GetResult();
 
+                // Assert
                 Assert.True(decodedAzureContentHash == aiCoreBlob.ContentHash);
                 Assert.True(aiCoreBlob.ContentHash.IsEquivalentTo(aiCoreBlob.ContentHash.ToUpper()));
-
-                var rg = new Regex(@"^[a-zA-Z0-9\s,]*$");
                 Assert.Matches(rg, aiCoreBlob.ContentHash);
             });
         }
 
-        /// <summary>Verifies blobs can be listed based off a prefix</summary>
+        /// <summary>Verifies blobs can be listed based off a prefix.</summary>
         [Fact]
         public void Test_BlobStorage_ListFilesWithPrefix()
         {
+            // Arrange
             var metaData = new Dictionary<string, string>
             {
                 { "testKey", "testValue" }
             };
 
-            //Create blobs
+            // Act - Create blobs
             for (int i = 1; i <= 11; i++)
             {
                 string filePath = $"{TestContainerName}/listtestfile{i}";
@@ -305,10 +358,10 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 _client.UploadBlob(filePath, stringInMemoryStream, metaData).GetAwaiter().GetResult();
             }
 
-            //Get Blobs
+            // Get Blobs
             var blobsWithPrefix = _client.ListBlobs(TestContainerName, false, false, "listtestfile1").ToList();
 
-            //Cleanup Blobs
+            // Cleanup Blobs
             for (int i = 1; i <= 11; i++)
             {
                 string filePath = $"{TestContainerName}/listtestfile{i}";
@@ -319,7 +372,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 _client.DeleteBlob(filePath).GetAwaiter().GetResult();
             }
 
-            //Assertions
+            // Assert
             Assert.True(3 == blobsWithPrefix.Count);
             Assert.Equal("listtestfile1", blobsWithPrefix[0].FileName);
             Assert.Equal("listtestfile10", blobsWithPrefix[1].FileName);
@@ -327,9 +380,10 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         }
 
         [Fact]
-        /// <summary>Verifies blob metadata can be updated</summary>
+        /// <summary>Verifies blob metadata can be updated as expected.</summary>
         public void Test_BlobStorage_UpdateBlobMetadata()
         {
+            // Arrange
             TearUpDown(async (size, name) =>
             {
                 var blob = (BlobItem)_client.GetBlob(_fullPath, true).GetAwaiter().GetResult();
@@ -337,11 +391,12 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 Assert.True(blob.Metadata.ContainsKey("testKey"));
                 Assert.True(blob.Metadata.ContainsValue("testValue"));
 
-                //add more metadata 
+                // Act - add more metadata 
                 blob.Metadata.AddRange(new Dictionary<string, string> { { "additonalTestKey", "addiionalTestValue" } });
 
                 await _client.UpdateBlobMetadata(blob);
 
+                // Assert
                 Assert.True(blob.Metadata.ContainsKey("testKey"));
                 Assert.True(blob.Metadata.ContainsValue("testValue"));
                 Assert.True(blob.Metadata.ContainsKey("additonalTestKey"));
@@ -350,11 +405,11 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
             });
         }
 
-        /// <summary>Verifies contents of directory copied</summary>
+        /// <summary>Verifies contents of directory copied across as expected.</summary>
         [Fact]
         public void Test_BlobStorage_CopyDirectory()
         {
-            // ARRANGE - setup source and destination folders with blobs for testing.
+            // Arrange - setup source and destination folders with blobs for testing.
             var destinationContainerName = "testdestination";
             var metaData = new Dictionary<string, string> { { "testKey", "testValue" } };
 
@@ -389,11 +444,10 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                     receivedEvents.Add(success.ToString());
                 };
 
-                // ACT - carrry out server side copy directory.
+                // Act - carrry out server side copy directory.
                 var copyBlobsResult = _client.CopyDirectory(TestContainerName, destinationContainerName, transferEventAction).GetAwaiter().GetResult();
 
-                // ASSERT
-                // Ensure correct amount of blobs transferred
+                // Assert - Ensure correct amount of blobs transferred
                 Assert.Equal(totalAtSource, copyBlobsResult.NumberOfFilesTransferred);
 
                 //Ensure the event handler was called for each file transferred
@@ -414,6 +468,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
             }
             finally
             {
+                // Clean-up
                 // Delete source destination files
                 foreach (var file in _client.ListBlobs(TestContainerName, true, false, "sourceTestFile"))
                 {
@@ -425,13 +480,18 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
             }
         }
 
+        /// <summary>Verify the call to signed folder access url returns the correct url as expected.</summary>
+        /// <param name="expectedOutputs">The expected outputs.</param>
+        /// <param name="testAccessConfig">The test access configuration.</param>
+        /// <param name="folderPath">The folder path.</param>
         [Theory]
         [ClassData(typeof(SignedAccessUrlTestData))]
         public void Test_BlobStorage_GetSignedFolderAccessUrl(Dictionary<string, string> expectedOutputs, ISignedAccessConfig testAccessConfig, string folderPath)
         {
+            // Arrange/Act
             var accessUrl = _client.GetSignedFolderAccessUrl(folderPath, testAccessConfig).GetAwaiter().GetResult();
 
-            //Assertions
+            // Assert
             Assert.NotNull(accessUrl);
             Assert.Contains(expectedOutputs["ExpiryDate"], accessUrl);
             Assert.Contains(expectedOutputs["Permission"], accessUrl);

@@ -715,7 +715,7 @@
         protected BlobStorageBase(ConnectionConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             Name = config.InstanceName;
@@ -727,7 +727,7 @@
         protected BlobStorageBase(MsiConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             CreateFolderIfNotExists = config.CreateFolderIfNotExists;
@@ -741,7 +741,7 @@
         protected BlobStorageBase(ServicePrincipleConfig config, ILogger logger = null)
         {
             // Ensure all mandatory fields are set.
-            config.Validate();
+            config.ThrowIfInvalid();
 
             Logger = logger;
             CreateFolderIfNotExists = config.CreateFolderIfNotExists;
