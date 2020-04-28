@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 using System.Collections.Generic;
 using Cloud.Core.Exceptions;
+using Cloud.Core.Storage.AzureBlobStorage.Tests.Fakes;
 
 namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
 {
