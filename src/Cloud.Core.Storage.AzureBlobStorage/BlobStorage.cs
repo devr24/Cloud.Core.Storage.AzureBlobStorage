@@ -405,7 +405,7 @@
             if (!leaseName.IsNullOrEmpty())
                 blobItem.UniqueLeaseName = leaseName;
 
-            await cloudBlockBlob.AcquireLeaseAsync(TimeSpan.FromSeconds(ServicePrincipleConfig.LockInSeconds), blobItem.UniqueLeaseName).ConfigureAwait(false);
+            await cloudBlockBlob.AcquireLeaseAsync(TimeSpan.FromSeconds(LockTickInSeconds), blobItem.UniqueLeaseName).ConfigureAwait(false);
 
             LockTimers.Add(
                 blobItem,
