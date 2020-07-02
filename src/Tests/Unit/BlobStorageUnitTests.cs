@@ -21,6 +21,22 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
         private const string TESTFILENAME = "testfile.txt";
         private readonly string _fullPath = $"{TESTCONTAINERNAME}/{TESTFILENAME}";
 
+        [Fact]
+        public void Test_ServicePrincipleConfig_ToString()
+        {
+            // Arrange.
+            var config = new ServicePrincipleConfig { };
+            var configWithSecret = new ServicePrincipleConfig { AppSecret = "sample" };
+
+            // Act.
+            var configNotSet = config.ToString();
+            var configSet = configWithSecret.ToString();
+
+            // Assert.
+            configNotSet.Contains("Not Set").Should().BeTrue();
+            configSet.Contains("Not Set").Should().BeFalse();
+        }
+
         /// <summary>Verify connection config works as expected.</summary>
         [Fact]
         public void Test_ConnectionConfig_InstanceName()
