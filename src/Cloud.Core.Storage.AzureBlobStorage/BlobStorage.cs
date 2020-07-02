@@ -143,9 +143,15 @@
                 Permissions = blobPolicyPermissions
             };
 
+            policy.SharedAccessStartTime = DateTime.Now.AddDays(-1);
+
             if (signedAccessConfig.AccessExpiry != null)
             {
                 policy.SharedAccessExpiryTime = signedAccessConfig.AccessExpiry;
+            }
+            else
+            {
+                policy.SharedAccessExpiryTime = DateTime.Now.AddDays(365);
             }
 
             return new Uri(blob.Uri, blob.GetSharedAccessSignature(policy)).ToString();
