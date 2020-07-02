@@ -79,5 +79,19 @@
             services.AddFactoryIfNotAdded<IBlobStorage>();
             return services;
         }
+
+        /// <summary>
+        /// Adds an instance of Azure Blob storage as a singleton, using connection string config to setup.
+        /// </summary>
+        /// <param name="services">The services to extend.</param>
+        /// <param name="config">The configuration to initialise with.</param>
+        /// <returns>IServiceCollection.</returns>
+        public static IServiceCollection AddBlobStorageSingleton(this IServiceCollection services, ConnectionConfig config)
+        {
+            services.AddSingleton<IBlobStorage>(new BlobStorage(config));
+            services.AddFactoryIfNotAdded<IBlobStorage>();
+            return services;
+        }
+
     }
 }
