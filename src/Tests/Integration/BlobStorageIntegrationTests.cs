@@ -439,15 +439,18 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 Action<TransferEventType, ITransferEvent> transferEventAction = (transferEvent, success) =>
                 {
                     Console.WriteLine("Received event type: " + transferEvent.ToString());
+                    receivedEvents.Add(success.ToString());
+
                     Console.WriteLine($"Starttime: {success.StartTime}");
                     Console.WriteLine($"Source: {success.Source}");
                     Console.WriteLine($"Destination: {success.Destination}");
                     Console.WriteLine($"Endtime: {success.EndTime}");
-                    receivedEvents.Add(success.ToString());
                 };
 
                 // Act - carrry out server side copy directory.
                 var copyBlobsResult = _client.CopyDirectory(TestContainerName, destinationContainerName, transferEventAction).GetAwaiter().GetResult();
+
+                Console.WriteLine($"totalAtSource: {totalAtSource}, NumberOfFilesTransferred: {copyBlobsResult.NumberOfFilesTransferred}");
 
                 // Assert - Ensure correct amount of blobs transferred
                 Assert.Equal(totalAtSource, copyBlobsResult.NumberOfFilesTransferred);
