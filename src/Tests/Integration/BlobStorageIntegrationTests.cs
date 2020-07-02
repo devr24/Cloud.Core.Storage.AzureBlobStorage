@@ -447,6 +447,9 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
 
                 // Assert - Ensure correct amount of blobs transferred
                 Assert.Equal(totalAtSource, copyBlobsResult.NumberOfFilesTransferred);
+                Assert.True(copyBlobsResult.NumberOfFilesFailed == 0);
+                Assert.True(copyBlobsResult.NumberOfFilesSkipped == 0);
+                Assert.True(copyBlobsResult.BytesTransferred > 0);
 
                 //Ensure the event handler was called for each file transferred
                 Assert.Equal(totalAtSource, receivedEvents.Count);
