@@ -24,7 +24,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
     public class BlobStorageIntegrationTests : IDisposable
     {
         private readonly BlobStorage _client;
-        private readonly ConnectionConfig _config;
+        private readonly ServicePrincipleConfig _config;
         private readonly ILogger _logger;
         private const string TestContainerName = "testing";
         private const string TestFileName = "testfile.txt";
@@ -34,19 +34,14 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         public BlobStorageIntegrationTests()
         {
             var config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
-            //_config = new ServicePrincipleConfig
-            //{
-            //    InstanceName = config.GetValue<string>("InstanceName"),
-            //    TenantId = config.GetValue<string>("TenantId"),
-            //    SubscriptionId = config.GetValue<string>("SubscriptionId"),
-            //    AppId = config.GetValue<string>("AppId"),
-            //    AppSecret = config.GetValue<string>("AppSecret"),
-            //    LockInSeconds = 60,
-            //    CreateFolderIfNotExists = true
-            //};
-            _config = new ConnectionConfig
+            _config = new ServicePrincipleConfig
             {
-                ConnectionString = "DefaultEndpointsProtocol=https;AccountName=cloud1storage;AccountKey=U2eHVLg4DuCrBTNMIThcWu9/A8daYV6m60wVu26d9Z9Rpke0VYIo1JsSeTxPR6xX3pEI0sDwbTt52th+QBXYVg==;EndpointSuffix=core.windows.net",
+                InstanceName = config.GetValue<string>("InstanceName"),
+                TenantId = config.GetValue<string>("TenantId"),
+                SubscriptionId = config.GetValue<string>("SubscriptionId"),
+                AppId = config.GetValue<string>("AppId"),
+                AppSecret = config.GetValue<string>("AppSecret"),
+                LockInSeconds = 60,
                 CreateFolderIfNotExists = true
             };
 
