@@ -26,6 +26,8 @@
     using Microsoft.Rest;
     using Microsoft.Rest.TransientFaultHandling;
     using Models;
+    using System.Security.Cryptography;
+    using Microsoft.Azure.Management.Network.Fluent.Models;
 
     /// <summary>
     /// Azure specific implementation of BLOB cloud storage.
@@ -558,6 +560,7 @@
 
             var sourceBlob = await GetBlockBlobReference(sourceFilePath);
             var destBlob = await GetBlockBlobReference(destinationFilePath);
+
             await destBlob.StartCopyAsync(sourceBlob);
         }
 

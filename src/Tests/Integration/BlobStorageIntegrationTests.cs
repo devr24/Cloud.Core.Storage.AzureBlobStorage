@@ -24,7 +24,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
     public class BlobStorageIntegrationTests : IDisposable
     {
         private readonly BlobStorage _client;
-        private readonly ServicePrincipleConfig _config;
+        private readonly ConnectionConfig _config;
         private readonly ILogger _logger;
         private const string TestContainerName = "testing";
         private const string TestFileName = "testfile.txt";
@@ -34,14 +34,19 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         public BlobStorageIntegrationTests()
         {
             var config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
-            _config = new ServicePrincipleConfig
+            //_config = new ServicePrincipleConfig
+            //{
+            //    InstanceName = config.GetValue<string>("InstanceName"),
+            //    TenantId = config.GetValue<string>("TenantId"),
+            //    SubscriptionId = config.GetValue<string>("SubscriptionId"),
+            //    AppId = config.GetValue<string>("AppId"),
+            //    AppSecret = config.GetValue<string>("AppSecret"),
+            //    LockInSeconds = 60,
+            //    CreateFolderIfNotExists = true
+            //};
+            _config = new ConnectionConfig
             {
-                InstanceName = config.GetValue<string>("InstanceName"),
-                TenantId = config.GetValue<string>("TenantId"),
-                SubscriptionId = config.GetValue<string>("SubscriptionId"),
-                AppId = config.GetValue<string>("AppId"),
-                AppSecret = config.GetValue<string>("AppSecret"),
-                LockInSeconds = 60,
+                ConnectionString = "DefaultEndpointsProtocol=https;AccountName=cloud1storage;AccountKey=U2eHVLg4DuCrBTNMIThcWu9/A8daYV6m60wVu26d9Z9Rpke0VYIo1JsSeTxPR6xX3pEI0sDwbTt52th+QBXYVg==;EndpointSuffix=core.windows.net",
                 CreateFolderIfNotExists = true
             };
 
@@ -49,7 +54,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 .BuildServiceProvider().GetService<ILogger<BlobStorageIntegrationTests>>();
 
             _client = new BlobStorage(_config, _logger);
-            _client.Name.Should().Be(config.GetValue<string>("InstanceName"));
+            //_client.Name.Should().Be(config.GetValue<string>("InstanceName"));
             RemoveTestFile(_fullPath);
         }
 
@@ -490,23 +495,25 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
 
         /// <summary>Verify copying a single file works as expected.</summary>
         [Fact]
-        public void Test_BlobStorage_CopyFile()
+        public async void Test_BlobStorage_CopyFile()
         {
-            // Arrange
-            TearUpDown(async (size, path) =>
-            {
-                // Arrange.
-                var destPath = $"other/{TestFileName}";
+            // Arrange.
+            var destPath = $"other/{TestFileName}";
 
-                // Act.
-                var existsBefore = await _client.Exists(destPath);
-                await _client.CopyFile(path, destPath);
-                var existsAfter = await _client.Exists(destPath);
+            // Act
+            // Ensure files are deleted to begin with.
+            await _client.DeleteBlob(_fullPath);
+            await _client.DeleteBlob(destPath);
 
-                // Assert.
-                existsBefore.Should().BeFalse();
-                existsAfter.Should().BeTrue();
-            });
+            // Check before and after file copy.
+            var existsBefore = await _client.Exists(destPath);
+            await CreateTestFile(_fullPath);
+            await _client.CopyFile(_fullPath, destPath);
+            var existsAfter = await _client.Exists(destPath);
+
+            // Assert.
+            existsBefore.Should().BeFalse();
+            existsAfter.Should().BeTrue();
         }
 
         /// <summary>Verify the call to signed folder access url returns the correct url as expected.</summary>
