@@ -25,7 +25,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
         public void Test_ServicePrincipleConfig_ToString()
         {
             // Arrange.
-            var config = new ServicePrincipleConfig { };
+            var config = new ServicePrincipleConfig { LockInSeconds = 10 };
             var configWithSecret = new ServicePrincipleConfig { AppSecret = "sample" };
 
             // Act.
@@ -35,6 +35,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
             // Assert.
             configNotSet.Contains("Not Set").Should().BeTrue();
             configSet.Contains("Not Set").Should().BeFalse();
+            config.LockInSeconds.Should().Be(10);
         }
 
         /// <summary>Verify connection config works as expected.</summary>
@@ -117,6 +118,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
             item.Path.Should().Be("$root/samle.txt");
             fakeItem.FileName.Should().Be("myfile.txt");
             anotherItem.Path.Should().BeNullOrEmpty();
+            item.LastWriteTime.Should().Be(DateTime.MinValue);
         }
 
         /// <summary>Verify the MsiConfig validates as expected.</summary>
