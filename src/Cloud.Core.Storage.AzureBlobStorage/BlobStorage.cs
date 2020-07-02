@@ -3,12 +3,12 @@
     using System;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using System.Reactive.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using System.Diagnostics.CodeAnalysis;
     using Comparer;
     using Config;
     using Extensions;
@@ -26,8 +26,6 @@
     using Microsoft.Rest;
     using Microsoft.Rest.TransientFaultHandling;
     using Models;
-    using System.Security.Cryptography;
-    using Microsoft.Azure.Management.Network.Fluent.Models;
 
     /// <summary>
     /// Azure specific implementation of BLOB cloud storage.
