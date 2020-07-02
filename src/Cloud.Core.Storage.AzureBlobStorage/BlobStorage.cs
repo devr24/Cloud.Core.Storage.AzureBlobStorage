@@ -140,9 +140,14 @@
 
             var policy = new SharedAccessBlobPolicy
             {
-                Permissions = blobPolicyPermissions,
-                SharedAccessExpiryTime = signedAccessConfig.AccessExpiry
+                Permissions = blobPolicyPermissions
             };
+
+            if (signedAccessConfig.AccessExpiry != null)
+            {
+                policy.SharedAccessExpiryTime = signedAccessConfig.AccessExpiry;
+            }
+
             return new Uri(blob.Uri, blob.GetSharedAccessSignature(policy)).ToString();
         }
 

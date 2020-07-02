@@ -1,7 +1,6 @@
 ﻿namespace Microsoft.Extensions.DependencyInjection
 {
     using System;
-    using System.Linq;
     using Cloud.Core;
     using Cloud.Core.Storage.AzureBlobStorage;
     using Cloud.Core.Storage.AzureBlobStorage.Config;
@@ -34,7 +33,7 @@
                 instance.Name = key;
 
             services.AddSingleton<IBlobStorage>(instance);
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<IBlobStorage>();
             return services;
         }
 
@@ -64,7 +63,7 @@
         public static IServiceCollection AddBlobStorageSingleton(this IServiceCollection services, MsiConfig config)
         {
             services.AddSingleton<IBlobStorage>(new BlobStorage(config));
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<IBlobStorage>();
             return services;
         }
 
@@ -77,34 +76,8 @@
         public static IServiceCollection AddBlobStorageSingleton(this IServiceCollection services, ServicePrincipleConfig config)
         {
             services.AddSingleton<IBlobStorage>(new BlobStorage(config));
-            AddFactoryIfNotAdded(services);
+            services.AddFactoryIfNotAdded<IBlobStorage>();
             return services;
-        }
-
-        /// <summary>
-        /// Adds an instance of Azure Blob storage as a singleton, using connection string config to setup.
-        /// </summary>
-        /// <param name="services">The services to extend.</param>
-        /// <param name="config">The configuration to initialise with.</param>
-        /// <returns>IServiceCollection.</returns>
-        public static IServiceCollection AddBlobStorageSingleton(this IServiceCollection services, ConnectionConfig config)
-        {
-            services.AddSingleton<IBlobStorage>(new BlobStorage(config));
-            AddFactoryIfNotAdded(services);
-            return services;
-        }
-
-        /// <summary>
-        /// Add the generic service factory from Cloud.Core for the IBlobStorage type.  This allows multiple named instances of the same instance.
-        /// </summary>
-        /// <param name="services">Service collection to extend.</param>
-        private static void AddFactoryIfNotAdded(IServiceCollection services)
-        {
-            if (!services.Any(x => x.ServiceType == typeof(NamedInstanceFactory<IBlobStorage>)))
-            {
-                // Service Factory doesn't exist, so we add it to ensure it's always available.
-                services.AddSingleton<NamedInstanceFactory<IBlobStorage>>();
-            }
         }
     }
 }
