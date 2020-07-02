@@ -488,6 +488,28 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
             }
         }
 
+        /// <summary>Verify copying a single file works as expected.</summary>
+        [Fact]
+        public void Test_BlobStorage_CopyFile()
+        {
+            // Arrange
+            TearUpDown(async (size, path) =>
+            {
+                // Arrange.
+                var blob = await _client.GetBlob(path);
+                var destPath = $"other/{blob.FileName}";
+
+                // Act.
+                var existsBefore = await _client.Exists(destPath);
+                await _client.CopyFile(path, destPath);
+                var existsAfter = await _client.Exists(destPath);
+
+                // Assert.
+                existsBefore.Should().BeFalse();
+                existsAfter.Should().BeTrue();
+            });
+        }
+
         /// <summary>Verify the call to signed folder access url returns the correct url as expected.</summary>
         /// <param name="expectedOutputs">The expected outputs.</param>
         /// <param name="testAccessConfig">The test access configuration.</param>

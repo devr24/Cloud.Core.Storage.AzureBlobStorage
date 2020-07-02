@@ -542,6 +542,27 @@
         }
 
         /// <summary>
+        /// Copies the file from one directory to another on the server side.
+        /// Avoids having to download the file and reupload it somewhere else from the client side.
+        /// </summary>
+        /// <param name="sourceFilePath">The source path.</param>
+        /// <param name="destinationFilePath">The destination path.</param>
+        /// <returns>Task.</returns>
+        public async Task CopyFile(string sourceFilePath, string destinationFilePath)
+        {
+            var destinationContainerName = GetContainerFromPath(destinationFilePath);
+
+            // Ensure destination folder exists if we've configured to create automatically.
+            if (CreateFolderIfNotExists)
+                await GetContainer(destinationContainerName, true).ConfigureAwait(false);
+
+            var sourceBlob = await GetBlockBlobReference(sourceFilePath);
+            var destBlob = await GetBlockBlobReference(destinationFilePath);
+            
+            await TransferManager.CopyAsync(sourceBlob, destBlob, true);
+        }
+
+        /// <summary>
         /// Copies the content of one directory to another on the server side.
         /// Avoids having to download all items and reupload them to somewhere else on the client side.
         /// </summary>
