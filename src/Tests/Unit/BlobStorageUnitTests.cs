@@ -42,6 +42,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
         public void Test_ConnectionConfig_InstanceName()
         {
             // Arrange
+            var config = new ConnectionConfig();
             var config1 = new ConnectionConfig();
             var config2 = new ConnectionConfig();
             var config3 = new ConnectionConfig();
@@ -52,9 +53,12 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
             config3.ConnectionString = "A;AccountName=B;C";
 
             // Assert
+            config.InstanceName.Should().Be(null);
+            config.ToString().Should().Contain("Not Set");
             config1.InstanceName.Should().Be(null);
             config2.InstanceName.Should().Be(null);
             config3.InstanceName.Should().Be("B");
+            config3.ToString().Should().NotContain("Not Set");
             config1.InstanceName.Should().BeNull();
         }
 
