@@ -496,8 +496,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
             TearUpDown(async (size, path) =>
             {
                 // Arrange.
-                var blob = await _client.GetBlob(path);
-                var destPath = $"other/{blob.FileName}";
+                var destPath = $"other/{TestFileName}";
 
                 // Act.
                 var existsBefore = await _client.Exists(destPath);
