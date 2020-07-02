@@ -558,8 +558,7 @@
 
             var sourceBlob = await GetBlockBlobReference(sourceFilePath);
             var destBlob = await GetBlockBlobReference(destinationFilePath);
-            
-            await TransferManager.CopyAsync(sourceBlob, destBlob, true);
+            await destBlob.StartCopyAsync(sourceBlob);
         }
 
         /// <summary>

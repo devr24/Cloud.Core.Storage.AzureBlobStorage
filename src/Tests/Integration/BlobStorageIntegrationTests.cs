@@ -328,12 +328,12 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 var azureContentMd5 = Convert.FromBase64String(azureBlob.Properties.ContentMD5);
                 var decodedAzureContentHash = BitConverter.ToString(azureContentMd5).Replace("-", string.Empty).ToUpper();
 
-                var aiCoreBlob = _client.GetBlob(_fullPath, true).GetAwaiter().GetResult();
+                var coreBlob = _client.GetBlob(_fullPath, true).GetAwaiter().GetResult();
 
                 // Assert
-                Assert.True(decodedAzureContentHash == aiCoreBlob.ContentHash);
-                Assert.True(aiCoreBlob.ContentHash.IsEquivalentTo(aiCoreBlob.ContentHash.ToUpper()));
-                Assert.Matches(rg, aiCoreBlob.ContentHash);
+                Assert.True(decodedAzureContentHash == coreBlob.ContentHash);
+                Assert.True(coreBlob.ContentHash.IsEquivalentTo(coreBlob.ContentHash.ToUpper()));
+                Assert.Matches(rg, coreBlob.ContentHash);
             });
         }
 
