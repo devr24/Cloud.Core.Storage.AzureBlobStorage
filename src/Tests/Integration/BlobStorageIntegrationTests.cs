@@ -439,6 +439,10 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 Action<TransferEventType, ITransferEvent> transferEventAction = (transferEvent, success) =>
                 {
                     Console.WriteLine("Received event type: " + transferEvent.ToString());
+                    Console.WriteLine($"Starttime: {success.StartTime}");
+                    Console.WriteLine($"Source: {success.Source}");
+                    Console.WriteLine($"Destination: {success.Destination}");
+                    Console.WriteLine($"Endtime: {success.EndTime}");
                     receivedEvents.Add(success.ToString());
                 };
 
