@@ -614,8 +614,19 @@
             var destinationContainer = CloudBlobClient.GetContainerReference(destinationContainerName);
             var destinationRelativeUrl = GetPathWithoutContainer(destinationDirectoryPath);
             var destinationDirectory = destinationContainer.GetDirectoryReference(destinationRelativeUrl);
+            
+            Task<TransferStatus> transferTask = null;
 
-            var transferTask = TransferManager.CopyDirectoryAsync(sourceDirectory, destinationDirectory, CopyMethod.ServiceSideSyncCopy, copyOptions, directoryTransferContext);
+            try
+            {
+                transferTask = TransferManager.CopyDirectoryAsync(sourceDirectory, destinationDirectory, CopyMethod.ServiceSideSyncCopy, copyOptions, directoryTransferContext);
+            }
+            catch (Exception ex)
+            {
+                Logger?.LogError(ex, "Error during transfer");
+                throw;
+            }
+
             var result = await transferTask;
 
             // Output the result from the transfer.
