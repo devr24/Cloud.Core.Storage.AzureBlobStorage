@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using Models;
     using Xunit;
 
     public class SignedAccessUrlTestData : TheoryData<Dictionary<string, string>, ISignedAccessConfig, string>
