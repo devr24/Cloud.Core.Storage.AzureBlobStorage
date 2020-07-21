@@ -13,6 +13,7 @@
         /// <summary>
         /// Adds an instance of Azure Blob storage as a singleton, using managed user config to setup.  Requires the instance 
         /// name, TenantId and SubscriptionId to be supplied.
+        /// NOTE - will create the container if it doesn't already exist.
         /// </summary>
         /// <param name="services">The services to extend.</param>
         /// <param name="key">The key to use when looking up the instance from the factory.</param>
@@ -26,7 +27,8 @@
             {
                 InstanceName = instanceName,
                 TenantId = tenantId,
-                SubscriptionId = subscriptionId
+                SubscriptionId = subscriptionId,
+                CreateFolderIfNotExists = true
             });
 
             if (!key.IsNullOrEmpty())
@@ -40,6 +42,7 @@
         /// <summary>
         /// Adds an instance of Azure Blob storage as a singleton, using managed user config to setup.  Requires the instance 
         /// name, TenantId and SubscriptionId to be supplied.
+        /// NOTE - will create the container if it doesn't already exist.
         /// </summary>
         /// <param name="services">The services to extend.</param>
         /// <param name="instanceName">Name of the blob storage instance to connect to.</param>
@@ -49,7 +52,8 @@
         public static IServiceCollection AddBlobStorageSingleton(this IServiceCollection services, string instanceName, string tenantId, string subscriptionId)
         {
             services.AddBlobStorageSingleton(new MsiConfig {
-                InstanceName = instanceName, TenantId = tenantId, SubscriptionId = subscriptionId
+                InstanceName = instanceName, TenantId = tenantId, SubscriptionId = subscriptionId,
+                CreateFolderIfNotExists = true
             });
             return services;
         }
