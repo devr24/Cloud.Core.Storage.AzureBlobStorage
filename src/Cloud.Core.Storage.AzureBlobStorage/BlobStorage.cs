@@ -238,6 +238,28 @@
         }
 
         /// <summary>
+        /// Downloads the BLOB to stream.
+        /// </summary>
+        /// <param name="blobPath">The BLOB path to download.</param>
+        /// <returns>Stream blob contents.</returns>
+        public async Task<Stream> DownloadBlobToStream(string blobPath)
+        {
+            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
+            return await cloudBlockBlob.OpenReadAsync();
+        }
+
+        /// <summary>
+        /// Uploads the BLOB from stream.
+        /// </summary>
+        /// <param name="blobPath">The BLOB path to upload to.</param>
+        /// <returns>Stream blob content.</returns>
+        public async Task<Stream> UploadBlobFromStream(string blobPath)
+        {
+            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
+            return await cloudBlockBlob.OpenWriteAsync();
+        }
+
+        /// <summary>
         /// Downloads the BLOB from storage.
         /// </summary>
         /// <param name="blob">The BLOB item to download content for.</param>

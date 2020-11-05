@@ -49,7 +49,6 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 .BuildServiceProvider().GetService<ILogger<BlobStorageIntegrationTests>>();
 
             _client = new BlobStorage(_config, _logger);
-            //_client.Name.Should().Be(config.GetValue<string>("InstanceName"));
             RemoveTestFile(_fullPath);
         }
 
@@ -509,6 +508,82 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
             // Assert.
             existsBefore.Should().BeFalse();
             existsAfter.Should().BeTrue();
+        }
+
+        /// <summary>Verify we can upload a stream efficiently.</summary>
+        [Fact]
+        public async void Test_BlobStorage_UploadStreamAsync()
+        {
+            // Arrange.
+            var destPath = $"other/someBlobName.csv";
+
+            // Act
+            // Check file doesn't exist before.
+            await _client.DeleteBlob(destPath);
+            var existsBefore = await _client.Exists(destPath);
+
+            // Upload stream in parts.
+            using (var str = await _client.UploadBlobFromStream(destPath))
+            {
+                using var csvFile = new StreamWriter(str);
+                for (int i = 1; i <= 100; ++i)
+                {
+                    string rec = string.Format("{0}, a{0}, b{0}, c{0}, d{0}", i);
+                    csvFile.WriteLine(rec);
+                }
+
+                csvFile.Flush();
+            }
+
+            // Check file exists after.
+            var existsAfter = await _client.Exists(destPath);
+            await _client.DeleteBlob(destPath);
+
+            // Assert.
+            existsBefore.Should().BeFalse();
+            existsAfter.Should().BeTrue();
+        }
+
+        /// <summary>Verify we can upload a stream efficiently.</summary>
+        [Fact]
+        public async void Test_BlobStorage_DownloadStreamAsync()
+        {
+            // Arrange.
+            var destPath = $"other/someBlobName.csv";
+
+            // Act
+            // Upload file to begin with.
+            using (var str = await _client.UploadBlobFromStream(destPath))
+            {
+                using var csvFile = new StreamWriter(str);
+                for (int i = 1; i <= 100; ++i)
+                {
+                    string rec = string.Format("{0}, a{0}, b{0}, c{0}, d{0}", i);
+                    csvFile.WriteLine(rec);
+                }
+
+                csvFile.Flush();
+            }
+
+            int lines = 0;
+
+            // Download the file in parts.
+            using (var file = await _client.DownloadBlobToStream(destPath))
+            {
+                using var sr = new StreamReader(file, Encoding.UTF8);
+
+                do
+                {
+                    var line = await sr.ReadLineAsync();
+                    var compare = string.Format("{0}, a{0}, b{0}, c{0}, d{0}", lines + 1);
+                    line.Should().BeEquivalentTo(compare);
+                    lines++;
+                } while (!sr.EndOfStream);
+
+            }
+
+            // Assert.
+            lines.Should().Be(100);
         }
 
         /// <summary>Verify the call to signed folder access url returns the correct url as expected.</summary>
