@@ -126,6 +126,21 @@ using (var blobStream = await _blobStorage.DownloadBlob(sourcePath))
 }               
 ```
 
+Download using stream:
+```csharp
+using (var file = await _client.DownloadBlobToStream(destPath))
+{
+    using var sr = new StreamReader(file, Encoding.UTF8);
+    do
+    {
+        var line = await sr.ReadLineAsync();    
+ 
+        // carry out operation with line...
+
+    } while (!sr.EndOfStream);
+}
+```
+
 ### Upload a Blob
 
 The following code shows an example of uploading text:
@@ -137,6 +152,20 @@ var textStream = sampleText.ConvertToStream(Encoding.UTF8); // you can use your 
 
 // Upload
 await _blobStorage.UploadBlob(targetPath, textStream);
+```
+
+Upload as stream:
+```csharp
+using (var str = await _client.UploadBlobFromStream(destPath))
+{
+     using var csvFile = new StreamWriter(str);
+     for (int i = 1; i <= 100; ++i)
+     {
+          string rec = string.Format("{0}, a{0}, b{0}, c{0}, d{0}", i);
+          csvFile.WriteLine(rec);
+     }
+     csvFile.Flush();
+}
 ```
 
 **Note** - Do not update the Microsoft.IdentityModel.Clients.ActiveDirectory package.  It should be set to version 3.19.8.  This is the only package which overlaps between other Cloud.Core packages and must be kept inline (either update all or leave all as is currently).
