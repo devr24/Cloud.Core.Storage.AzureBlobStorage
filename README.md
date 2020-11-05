@@ -9,6 +9,7 @@
 
 An Azure specific implementation of blob storage and blob storage item.
 
+**[Read full Api documentation](https://cloud1core.blob.core.windows.net/docs/Cloud.Core.Storage.AzureBlobStorage/api/index.html)**
 </div>
 
 ## Design
