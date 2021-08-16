@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Company>Aylesbury Solutions Ltd</Company>
     <IsPackable>true</IsPackable>
     <PackageId>Cloud.Core.Storage.AzureBlobStorage</PackageId>
@@ -10,15 +10,14 @@
     <PackageReleaseNotes />
     <Description>An Azure specific implementation of Blob object storage.</Description>
     <Copyright>Aylesbury Solutions Ltd</Copyright>
-    <Version>3.1</Version>
+    <Version>5.0</Version>
     <PackageIconUrl>https://cloud1core.blob.core.windows.net/icons/CC.png</PackageIconUrl>
     <Authors>Robert McCabe</Authors>
     <ProjectGuid>{e516636b-27e9-4353-982d-8d591aac5f43}</ProjectGuid>
     <RepositoryUrl>https://github.com/rmccabe24/Cloud.Core.Storage.AzureBlobStorage</RepositoryUrl>
     <RepositoryType>Private</RepositoryType>
     <DocumentationFile>Cloud.Core.Storage.AzureBlobStorage.xml</DocumentationFile>
-    <PackageReleaseNotes>
-		Full API Documentation can be found here:
+    <PackageReleaseNotes>Full API Documentation can be found here:
 		https://cloud1core.blob.core.windows.net/docs/Cloud.Core.Storage.AzureBlobStorage/api/index.html
 	</PackageReleaseNotes>
 	  <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -27,10 +26,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.9.1" />
+    <PackageReference Include="Azure.Storage.Blobs.Batch" Version="12.6.0" />
     <PackageReference Include="Cloud.Core" Version="3.1.3716.1015" />
 	  <PackageReference Include="Microsoft.Azure.Management.Fluent" Version="1.33.0" />
 	  <PackageReference Include="Microsoft.Azure.Services.AppAuthentication" Version="1.5.0" />
-	  <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="11.1.3" />
 	  <PackageReference Include="Microsoft.Azure.Storage.DataMovement" Version="1.3.0" />
 	  <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.8" />
     <PackageReference Include="System.Reactive.Core" Version="4.4.1" />
