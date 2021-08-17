@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Cloud.Core.Extensions;
 
 namespace Cloud.Core.Storage.AzureBlobStorage.Extensions
 {

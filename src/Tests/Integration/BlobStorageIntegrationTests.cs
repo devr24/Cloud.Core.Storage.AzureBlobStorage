@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Cloud.Core.Extensions;
 using Cloud.Core.Storage.AzureBlobStorage.Config;
 using Cloud.Core.Testing;
 using Cloud.Core.Testing.Lorem;

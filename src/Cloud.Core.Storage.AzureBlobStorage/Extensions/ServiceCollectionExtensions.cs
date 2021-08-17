@@ -2,6 +2,7 @@
 {
     using System;
     using Cloud.Core;
+    using Cloud.Core.Extensions;
     using Cloud.Core.Storage.AzureBlobStorage;
     using Cloud.Core.Storage.AzureBlobStorage.Config;
 

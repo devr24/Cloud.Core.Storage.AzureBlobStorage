@@ -259,7 +259,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
             var blobStorage = new BlobStorage(new ConnectionConfig("none"));
 
             // Act
-            var foundBlobName = blobStorage.GetBlobRelativePath(testPath);
+            var foundBlobName = blobStorage.GetBlobName(testPath);
 
             // Assert
             expected.Should().Be(foundBlobName);

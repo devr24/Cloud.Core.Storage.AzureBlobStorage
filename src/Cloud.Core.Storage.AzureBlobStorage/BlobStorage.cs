@@ -9,6 +9,7 @@
     using System.Reactive.Linq;
     using System.Threading;
     using System.Threading.Tasks;
+    using Cloud.Core.Extensions;
     using Comparer;
     using Config;
     using Extensions;
@@ -837,7 +838,7 @@
         internal CloudBlockBlob GetBlockBlobReference(string blobPath)
         {
             var container = GetContainer(blobPath);
-            var blobName = GetBlobRelativePath(blobPath);
+            var blobName = GetBlobName(blobPath);
 
             return container.GetBlockBlobReference(blobName);
         }
@@ -1019,7 +1020,7 @@
         /// </summary>
         /// <param name="path">The path to parse.</param>
         /// <returns><see cref="string"/> BLOB file name</returns>
-        internal string GetBlobRelativePath(string path)
+        internal string GetBlobName(string path)
         {
             var firstSlashIndex = path.LastIndexOf("/", StringComparison.InvariantCulture);
 

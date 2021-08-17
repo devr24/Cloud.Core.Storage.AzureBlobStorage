@@ -4,6 +4,7 @@
     using System.Linq;
     using System.ComponentModel.DataAnnotations;
     using Validation;
+    using Cloud.Core.Extensions;
 
     /// <summary>
     /// Msi Configuration for Azure Blob Storage.
