@@ -25,7 +25,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
     public class BlobStorageIntegrationTests : IDisposable
     {
         private readonly BlobStorage _client;
-        private readonly ConnectionConfig _config;
+        private readonly ServicePrincipleConfig _config;
         private readonly ILogger _logger;
         private const string TestContainerName = "testing";
         private const string TestFileName = "testfile.txt";
@@ -35,19 +35,16 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         public BlobStorageIntegrationTests()
         {
             var config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
-            _config = new ConnectionConfig {
-                CreateFolderIfNotExists=true,
-                ConnectionString = "DefaultEndpointsProtocol=https;AccountName=cloud1storage;AccountKey=BTrkrpFYX9XVfyKGc19Gi488nfDnpg/H05mZJFIzHWT5hApBZvV4+LUNDE/B2riI558J2sHPcHQHeRBCvtcP8A==;EndpointSuffix=core.windows.net"
+            _config = new ServicePrincipleConfig
+            {
+                InstanceName = config.GetValue<string>("InstanceName"),
+                TenantId = config.GetValue<string>("TenantId"),
+                SubscriptionId = config.GetValue<string>("SubscriptionId"),
+                AppId = config.GetValue<string>("AppId"),
+                AppSecret = config.GetValue<string>("AppSecret"),
+                LockInSeconds = 60,
+                CreateFolderIfNotExists = true
             };
-            //{
-            //    InstanceName = config.GetValue<string>("InstanceName"),
-            //    TenantId = config.GetValue<string>("TenantId"),
-            //    SubscriptionId = config.GetValue<string>("SubscriptionId"),
-            //    AppId = config.GetValue<string>("AppId"),
-            //    AppSecret = config.GetValue<string>("AppSecret"),
-            //    LockInSeconds = 60,
-            //    CreateFolderIfNotExists = true
-            //};
 
             _logger = new ServiceCollection().AddLogging(builder => builder.AddConsole())
                 .BuildServiceProvider().GetService<ILogger<BlobStorageIntegrationTests>>();
