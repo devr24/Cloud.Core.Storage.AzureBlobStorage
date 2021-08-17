@@ -249,11 +249,11 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Unit
         /// <param name="expected">The expected.</param>
         /// <param name="testPath">The test path.</param>
         [Theory]
-        [InlineData("SubPath1/SubPath2/SubPath3/TestBlob.txt", "Container1/SubPath1/SubPath2/SubPath3/TestBlob.txt")]
-        [InlineData("SubPath1/SubPath2/TestBlob.txt", "Container1/SubPath1/SubPath2/TestBlob.txt")]
+        [InlineData("TestBlob.txt", "Container1/SubPath1/SubPath2/SubPath3/TestBlob.txt")]
+        [InlineData("TestBlob.txt", "Container1/SubPath1/SubPath2/TestBlob.txt")]
         [InlineData("TestBlob.txt", "Container1/TestBlob.txt")]
         [InlineData("TestBlob.txt", "TestBlob.txt")]
-        public void Test_BlobStorage_GetBlobRelativePath(string expected, string testPath)
+        public void Test_BlobStorage_GetBlobName(string expected, string testPath)
         {
             // Arrange
             var blobStorage = new BlobStorage(new ConnectionConfig("none"));
