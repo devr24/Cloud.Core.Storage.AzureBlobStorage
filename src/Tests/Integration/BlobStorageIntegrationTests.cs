@@ -24,26 +24,29 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
     public class BlobStorageIntegrationTests : IDisposable
     {
         private readonly BlobStorage _client;
-        private readonly ServicePrincipleConfig _config;
+        private readonly ConnectionConfig _config;
         private readonly ILogger _logger;
         private const string TestContainerName = "testing";
         private const string TestFileName = "testfile.txt";
         private readonly string _lease = "751C2444-F2C4-484D-8E88-B06FBDF8B4B8";
-        private readonly string _fullPath = $"{TestContainerName}/{TestFileName}";
+        private readonly string _fullPath = $"{TestContainerName}/sub1/{TestFileName}";
 
         public BlobStorageIntegrationTests()
         {
             var config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
-            _config = new ServicePrincipleConfig
-            {
-                InstanceName = config.GetValue<string>("InstanceName"),
-                TenantId = config.GetValue<string>("TenantId"),
-                SubscriptionId = config.GetValue<string>("SubscriptionId"),
-                AppId = config.GetValue<string>("AppId"),
-                AppSecret = config.GetValue<string>("AppSecret"),
-                LockInSeconds = 60,
-                CreateFolderIfNotExists = true
+            _config = new ConnectionConfig {
+                CreateFolderIfNotExists=true,
+                ConnectionString = "DefaultEndpointsProtocol=https;AccountName=cloud1storage;AccountKey=BTrkrpFYX9XVfyKGc19Gi488nfDnpg/H05mZJFIzHWT5hApBZvV4+LUNDE/B2riI558J2sHPcHQHeRBCvtcP8A==;EndpointSuffix=core.windows.net"
             };
+            //{
+            //    InstanceName = config.GetValue<string>("InstanceName"),
+            //    TenantId = config.GetValue<string>("TenantId"),
+            //    SubscriptionId = config.GetValue<string>("SubscriptionId"),
+            //    AppId = config.GetValue<string>("AppId"),
+            //    AppSecret = config.GetValue<string>("AppSecret"),
+            //    LockInSeconds = 60,
+            //    CreateFolderIfNotExists = true
+            //};
 
             _logger = new ServiceCollection().AddLogging(builder => builder.AddConsole())
                 .BuildServiceProvider().GetService<ILogger<BlobStorageIntegrationTests>>();
@@ -322,7 +325,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
                 var rg = new Regex(@"^[a-zA-Z0-9\s,]*$");
 
                 // Act
-                var azureBlob = _client.GetBlockBlobReference(_fullPath).GetAwaiter().GetResult();
+                var azureBlob = _client.GetBlockBlobReference(_fullPath);
                 azureBlob.FetchAttributesAsync().GetAwaiter().GetResult();
                 var azureContentMd5 = Convert.FromBase64String(azureBlob.Properties.ContentMD5);
                 var decodedAzureContentHash = BitConverter.ToString(azureContentMd5).Replace("-", string.Empty).ToUpper();

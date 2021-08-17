@@ -108,7 +108,7 @@
                 SharedAccessExpiryTime = signedAccessConfig.AccessExpiry,
                 Permissions = blobPolicyPermissions
             };
-            var container = await GetContainer(folderPath);
+            var container = GetContainer(folderPath);
             var subPath = GetPathWithoutContainer(folderPath);
             var containerSignature = container.GetSharedAccessSignature(accessPolicy);
 
@@ -136,7 +136,7 @@
         public async Task<string> GetSignedBlobAccessUrl(string blobPath, ISignedAccessConfig signedAccessConfig)
         {
             var blobPolicyPermissions = GetAzureBlobPolicyPermissions(signedAccessConfig.AccessPermissions);
-            var blob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
+            var blob = GetBlockBlobReference(blobPath);
 
             var policy = new SharedAccessBlobPolicy
             {
@@ -205,8 +205,8 @@
         /// <returns>[True] if exists and [False] if the blob does not exist.</returns>
         public async Task<bool> Exists(string blobPath)
         {
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
-            return await cloudBlockBlob.ExistsAsync().ConfigureAwait(false);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
+            return await cloudBlockBlob.ExistsAsync();
         }
 
         /// <summary>
@@ -218,8 +218,8 @@
         public async Task<Stream> DownloadBlob(string blobPath)
         {
             Stream memoryStream = new MemoryStream();
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
-            await cloudBlockBlob.DownloadToStreamAsync(memoryStream).ConfigureAwait(false);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
+            await cloudBlockBlob.DownloadToStreamAsync(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
             return memoryStream;
         }
@@ -233,8 +233,8 @@
         /// <inheritdoc />
         public async Task DownloadBlob(string blobPath, string filePath)
         {
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
-            await cloudBlockBlob.DownloadToFileAsync(filePath, FileMode.Create).ConfigureAwait(false);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
+            await cloudBlockBlob.DownloadToFileAsync(filePath, FileMode.Create);
         }
 
         /// <summary>
@@ -244,7 +244,7 @@
         /// <returns>Stream blob contents.</returns>
         public async Task<Stream> DownloadBlobToStream(string blobPath)
         {
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
             return await cloudBlockBlob.OpenReadAsync();
         }
 
@@ -255,7 +255,7 @@
         /// <returns>Stream blob content.</returns>
         public async Task<Stream> UploadBlobFromStream(string blobPath)
         {
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
             return await cloudBlockBlob.OpenWriteAsync();
         }
 
@@ -284,7 +284,7 @@
         {
             try
             {
-                var cloudBlockBlob = await GetBlockBlobReference(blobPath);
+                var cloudBlockBlob = GetBlockBlobReference(blobPath);
                 cloudBlockBlob.Metadata.AddRange(metadata);
                 await cloudBlockBlob.UploadFromStreamAsync(stream);
             }
@@ -295,7 +295,7 @@
                 {
                     Logger?.LogInformation("Creating container as it does not exist");
                     await Task.Delay(1000);
-                    GetContainer(blobPath, true).GetAwaiter().GetResult();
+                    GetContainer(blobPath, true);
                     await Task.Delay(1000);
                     UploadBlob(blobPath, stream, metadata).GetAwaiter().GetResult();
                 }
@@ -314,7 +314,7 @@
         /// <inheritdoc />
         public async Task UploadBlob(string blobPath, string filePath, Dictionary<string, string> metadata = null)
         {
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
             cloudBlockBlob.Metadata.AddRange(metadata);
             await cloudBlockBlob.UploadFromFileAsync(filePath);
         }
@@ -347,8 +347,8 @@
         /// <inheritdoc />
         public async Task DeleteBlob(string blobPath)
         {
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
-            await cloudBlockBlob.DeleteIfExistsAsync().ConfigureAwait(false);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
+            await cloudBlockBlob.DeleteIfExistsAsync();
         }
 
         /// <summary>
@@ -359,7 +359,7 @@
         /// <exception cref="NotImplementedException"></exception>
         public async Task RemoveFolder(string path)
         {
-            var container = await GetContainer(path).ConfigureAwait(false);
+            var container = GetContainer(path);
 
             var folderPath = path.Replace(container.Name, string.Empty);
             folderPath = ParsePath(folderPath);
@@ -367,7 +367,7 @@
             var ctoken = new BlobContinuationToken();
             do
             {
-                var result = await container.ListBlobsSegmentedAsync(folderPath, true, BlobListingDetails.None, null, ctoken, null, null).ConfigureAwait(false);
+                var result = await container.ListBlobsSegmentedAsync(folderPath, true, BlobListingDetails.None, null, ctoken, null, null);
                 ctoken = result.ContinuationToken;
                 await Task.WhenAll(result.Results
                     .Select(item => (item as CloudBlob)?.DeleteIfExistsAsync())
@@ -386,7 +386,7 @@
         /// <exception cref="NotImplementedException"></exception>
         public async Task AddFolder(string path)
         {
-            await GetContainer(path, true).ConfigureAwait(false);
+            GetContainer(path, true);
 
             // NOTE: We DONT add the sub directories because in Azure Blob Storge, these are virtual and 
             // don't actually exist until a file has been placed in the directory.
@@ -398,7 +398,7 @@
         /// <returns>Task IBlobItem.</returns>
         public async Task<IBlobItem> GetBlob(string blobPath, bool fetchAttributes = false)
         {
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
             var exists = await cloudBlockBlob.ExistsAsync();
             
             // Return null when not found.
@@ -409,7 +409,7 @@
 
             if (fetchAttributes)
             {
-                await cloudBlockBlob.FetchAttributesAsync(new AccessCondition(), new BlobRequestOptions(), new OperationContext()).ConfigureAwait(false);
+                await cloudBlockBlob.FetchAttributesAsync(new AccessCondition(), new BlobRequestOptions(), new OperationContext());
             }
 
             return new BlobItem(cloudBlockBlob);
@@ -423,7 +423,7 @@
         /// <returns></returns>
         public async Task<IBlobItem> GetBlobWithLock(string blobPath, string leaseName = "")
         {
-            var cloudBlockBlob = await GetBlockBlobReference(blobPath).ConfigureAwait(false);
+            var cloudBlockBlob = GetBlockBlobReference(blobPath);
 
             var exists = await cloudBlockBlob.ExistsAsync();
 
@@ -438,7 +438,7 @@
             if (!leaseName.IsNullOrEmpty())
                 blobItem.UniqueLeaseName = leaseName;
 
-            await cloudBlockBlob.AcquireLeaseAsync(TimeSpan.FromSeconds(LockTickInSeconds), blobItem.UniqueLeaseName).ConfigureAwait(false);
+            await cloudBlockBlob.AcquireLeaseAsync(TimeSpan.FromSeconds(LockTickInSeconds), blobItem.UniqueLeaseName);
 
             LockTimers.Add(
                 blobItem,
@@ -446,7 +446,7 @@
                     async _ =>
                     {
                         var accessCondition = new AccessCondition { LeaseId = blobItem.UniqueLeaseName };
-                        await cloudBlockBlob.RenewLeaseAsync(accessCondition).ConfigureAwait(false);
+                        await cloudBlockBlob.RenewLeaseAsync(accessCondition);
                     },
                     null,
                     TimeSpan.FromSeconds(LockTickInSeconds),
@@ -467,7 +467,7 @@
                 var tag = (CloudBlockBlob)item.Tag;
 
                 var accessCondition = new AccessCondition { LeaseId = item.UniqueLeaseName };
-                await tag.ReleaseLeaseAsync(accessCondition).ConfigureAwait(false);
+                await tag.ReleaseLeaseAsync(accessCondition);
             }
             catch (StorageException)
             {
@@ -509,7 +509,7 @@
         /// </returns>
         public IObservable<IBlobItem> ListBlobsObservable(string rootFolder, bool recursive, bool fetchBlobAttributes = false, string searchPrefix = null)
         {
-            var container = GetContainer(rootFolder, true).GetAwaiter().GetResult();
+            var container = GetContainer(rootFolder, true);
             var folderPath = rootFolder.Replace(container.Name, string.Empty);
 
             folderPath = ParsePath(folderPath);
@@ -576,10 +576,10 @@
 
             // Ensure destination folder exists if we've configured to create automatically.
             if (CreateFolderIfNotExists)
-                await GetContainer(destinationContainerName, true).ConfigureAwait(false);
+                GetContainer(destinationContainerName, true);
 
-            var sourceBlob = await GetBlockBlobReference(sourceFilePath);
-            var destBlob = await GetBlockBlobReference(destinationFilePath);
+            var sourceBlob = GetBlockBlobReference(sourceFilePath);
+            var destBlob = GetBlockBlobReference(destinationFilePath);
 
             await destBlob.StartCopyAsync(sourceBlob);
         }
@@ -599,7 +599,7 @@
 
             // Ensure destination folder exists if we've configured to create automatically.
             if (CreateFolderIfNotExists)
-                await GetContainer(destinationContainerName, true).ConfigureAwait(false);
+                GetContainer(destinationContainerName, true);
 
             var directoryTransferContext = new DirectoryTransferContext();
 
@@ -742,7 +742,7 @@
                 if (_basePath.IsNullOrEmpty())
                     _container = null;
                 else
-                    _container = GetContainer(_basePath).GetAwaiter().GetResult();
+                    _container = GetContainer(_basePath);
             }
         }
 
@@ -834,9 +834,9 @@
         /// </summary>
         /// <param name="blobPath">The BLOB path.</param>
         /// <returns><see cref="CloudBlockBlob"/> cloud BLOB reference.</returns>
-        internal async Task<CloudBlockBlob> GetBlockBlobReference(string blobPath)
+        internal CloudBlockBlob GetBlockBlobReference(string blobPath)
         {
-            var container = await GetContainer(blobPath).ConfigureAwait(false);
+            var container = GetContainer(blobPath);
             var blobName = GetBlobRelativePath(blobPath);
 
             return container.GetBlockBlobReference(blobName);
@@ -849,7 +849,7 @@
         /// <param name="createIfDoesNotExist">if set to <c>true</c> [create the container if it does not exist].</param>
         /// <returns><see cref="CloudBlobContainer"/></returns>
         /// <exception cref="InvalidOperationException">If the passed path starts with a "/" then an exception is thrown.</exception>
-        internal async Task<CloudBlobContainer> GetContainer(string fullPath, bool createIfDoesNotExist = false)
+        internal CloudBlobContainer GetContainer(string fullPath, bool createIfDoesNotExist = false)
         {
             if (_container != null)
                 return _container;
@@ -859,7 +859,7 @@
 
             if (createIfDoesNotExist)
             {
-                await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+                container.CreateIfNotExists();
             }
 
             return container;
@@ -1021,7 +1021,7 @@
         /// <returns><see cref="string"/> BLOB file name</returns>
         internal string GetBlobRelativePath(string path)
         {
-            var firstSlashIndex = path.IndexOf("/", StringComparison.InvariantCulture);
+            var firstSlashIndex = path.LastIndexOf("/", StringComparison.InvariantCulture);
 
             if (firstSlashIndex == 0)
             {
@@ -1030,7 +1030,7 @@
 
             if (firstSlashIndex > -1)
             {
-                var indexOfFirstSlash = path.IndexOf("/", StringComparison.InvariantCulture) + 1;
+                var indexOfFirstSlash = path.LastIndexOf("/", StringComparison.InvariantCulture) + 1;
                 return path[indexOfFirstSlash..];
             }
             return path;
