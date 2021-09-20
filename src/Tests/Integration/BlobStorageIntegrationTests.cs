@@ -35,8 +35,7 @@ namespace Cloud.Core.Storage.AzureBlobStorage.Tests.Integration
         public BlobStorageIntegrationTests()
         {
             var config = new ConfigurationBuilder().AddJsonFile("appSettings.json").Build();
-            _config = new ServicePrincipleConfig
-            {
+            _config = new ServicePrincipleConfig {
                 InstanceName = config.GetValue<string>("InstanceName"),
                 TenantId = config.GetValue<string>("TenantId"),
                 SubscriptionId = config.GetValue<string>("SubscriptionId"),
